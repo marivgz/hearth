@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>❤️</title>
+
+<style>
+html, body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#050505;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+}
+
+canvas{
+    display:block;
+}
+</style>
+
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<script>
+
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
+
+function resize(){
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+}
+resize();
+window.onresize=resize;
+
+let t=0;
+let drawing=true;
+
+const points=[];
+
+function heartPoint(a){
+
+    let x=16*Math.pow(Math.sin(a),3);
+
+    let y=
+        13*Math.cos(a)
+       -5*Math.cos(2*a)
+       -2*Math.cos(3*a)
+       -Math.cos(4*a);
+
+    return{
+        x:x*18,
+        y:-y*18
+    };
+}
+
+const stars=[];
+
+for(let i=0;i<180;i++){
+
+    stars.push({
+
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2,
+        a:Math.random()
+
+    });
+
+}
+
+function drawStars(){
+
+    for(const s of stars){
+
+        ctx.beginPath();
+        ctx.fillStyle="rgba(255,255,255,"+(0.3+s.a*0.7)+")";
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fill();
+
+        s.a+=0.01*Math.random();
+
+        if(s.a>1)s.a=0;
+
+    }
+
+}
+
+function animate(){
+
+    ctx.fillStyle="#050505";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    drawStars();
+
+    ctx.save();
+
+    ctx.translate(canvas.width/2,canvas.height/2);
+
+    if(drawing){
+
+        const p=heartPoint(t);
+
+        points.push(p);
+
+        t+=0.03;
+
+        if(t>=Math.PI*2){
+
+            drawing=false;
+
+        }
+
+    }
+
+    ctx.beginPath();
+
+    for(let i=0;i<points.length;i++){
+
+        let p=points[i];
+
+        if(i===0)
+            ctx.moveTo(p.x,p.y);
+        else
+            ctx.lineTo(p.x,p.y);
+
+    }
+
+    ctx.strokeStyle="red";
+    ctx.lineWidth=5;
+
+    ctx.shadowColor="red";
+    ctx.shadowBlur=25;
+
+    ctx.stroke();
+
+    if(points.length){
+
+        const p=points[points.length-1];
+
+        ctx.beginPath();
+
+        ctx.fillStyle="#ff4040";
+
+        ctx.shadowBlur=40;
+
+        ctx.arc(p.x,p.y,6,0,Math.PI*2);
+
+        ctx.fill();
+
+    }
+
+    if(!drawing){
+
+        let s=1+Math.sin(Date.now()/250)*0.04;
+
+        ctx.scale(s,s);
+
+        ctx.beginPath();
+
+        for(let i=0;i<points.length;i++){
+
+            let p=points[i];
+
+            if(i===0)
+                ctx.moveTo(p.x,p.y);
+            else
+                ctx.lineTo(p.x,p.y);
+
+        }
+
+        ctx.strokeStyle="#ff2b2b";
+        ctx.lineWidth=5;
+        ctx.shadowColor="red";
+        ctx.shadowBlur=35;
+        ctx.stroke();
+
+    }
+
+    ctx.restore();
+
+    requestAnimationFrame(animate);
+
+}
+
+animate();
+
+document.body.onclick=()=>{
+
+    points.length=0;
+
+    t=0;
+
+    drawing=true;
+
+};
+
+</script>
+
+</body>
+</html>
