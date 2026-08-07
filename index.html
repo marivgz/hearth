@@ -3,86 +3,236 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Heart</title>
-
+<title>Corazón de Estrellas — Trazado Matemático</title>
 <style>
-body {
+  :root {
+    --red: #ff1744;
+    --red-glow: #ff5252;
+  }
+
+  * {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    background: radial-gradient(ellipse at center, #0a0a1a 0%, #000000 100%);
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  #stars-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    animation: twinkle var(--dur) ease-in-out infinite;
+    animation-delay: var(--delay);
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 6px 2px rgba(255,255,255,0.8);
+    animation: shoot linear infinite;
+  }
+
+  .shooting-star::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.9), transparent);
+    transform: translateX(-90px) translateY(0);
+  }
+
+  @keyframes shoot {
+    0% { transform: translate(0,0); opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translate(-500px, 300px); opacity: 0; }
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
     height: 100vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    background: #111;
-    overflow: hidden;
-}
+    justify-content: center;
+    gap: 20px;
+  }
 
-.heart {
-    position: relative;
-    width: 300px;
-    height: 270px;
-    animation: pulse 1.5s infinite;
-}
+  #heartSvg {
+    width: min(75vw, 460px);
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(255, 23, 68, 0.5));
+  }
 
-.line {
-    position: absolute;
-    left: 50%;
-    height: 2px;
-    background: #ff4d88;
-    transform: translateX(-50%);
-    animation: fill 2s forwards;
+  .stitch-line {
+    stroke: var(--red);
+    stroke-width: 0.7;
     opacity: 0;
-    box-shadow: 0 0 8px #ff4d88;
-}
+    stroke-dasharray: 260;
+    stroke-dashoffset: 260;
+  }
 
-@keyframes fill {
-    from {
-        width: 0;
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
+  #texto {
+    color: #fff;
+    text-align: center;
+    opacity: 0;
+    letter-spacing: 1px;
+  }
 
-@keyframes pulse {
-    0%,100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-}
+  #texto.show {
+    animation: aparecer 1.5s ease-out forwards;
+  }
+
+  #texto h1 {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 300;
+    color: #ffd6dc;
+    text-shadow: 0 0 12px rgba(255, 23, 68, 0.6);
+  }
+
+  #texto p {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: #aaaacc;
+    font-weight: 300;
+  }
+
+  @keyframes aparecer {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 </head>
-
 <body>
 
-<div class="heart" id="heart"></div>
+<div id="stars-container"></div>
+
+<main>
+  <svg id="heartSvg" viewBox="0 0 200 190" xmlns="http://www.w3.org/2000/svg">
+    <g id="stitchGroup"></g>
+  </svg>
+
+  <div id="texto">
+    <h1>Un corazón trazado línea a línea</h1>
+    <p>como una ecuación que solo tenía un resultado posible</p>
+  </div>
+</main>
 
 <script>
-const heart = document.getElementById("heart");
+  // ---------- Estrellas de fondo ----------
+  const container = document.getElementById('stars-container');
+  const numStars = 150;
 
-for(let y = -100; y <= 100; y += 6){
+  for (let i = 0; i < numStars; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    star.style.width = size + 'px';
+    star.style.height = size + 'px';
+    star.style.left = Math.random() * 100 + 'vw';
+    star.style.top = Math.random() * 100 + 'vh';
+    star.style.setProperty('--dur', (Math.random() * 3 + 2) + 's');
+    star.style.setProperty('--delay', (Math.random() * 5) + 's');
+    container.appendChild(star);
+  }
 
-    let width = Math.sqrt(
-        Math.pow(16 * Math.sin(Math.acos(y/120)), 2)
-    );
+  function crearEstrellaFugaz() {
+    const shoot = document.createElement('div');
+    shoot.className = 'shooting-star';
+    shoot.style.left = (Math.random() * 60 + 30) + 'vw';
+    shoot.style.top = (Math.random() * 30) + 'vh';
+    shoot.style.animationDuration = (Math.random() * 1 + 1) + 's';
+    container.appendChild(shoot);
+    setTimeout(() => shoot.remove(), 2000);
+  }
+  setInterval(crearEstrellaFugaz, 3500);
+  setTimeout(crearEstrellaFugaz, 1000);
 
-    let x = Math.abs(y) / 2;
+  // ---------- Corazón matemático (curve stitching) ----------
+  // Ecuación paramétrica clásica del corazón:
+  // x = 16 sin^3(t)
+  // y = 13 cos(t) - 5 cos(2t) - 2 cos(3t) - cos(4t)
+  function heartPoint(t) {
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+    return { x, y };
+  }
 
-    let line = document.createElement("div");
-    line.className = "line";
+  const N = 140;              // cantidad de puntos sobre el contorno
+  const OFFSET = 55;          // separación entre puntos conectados (efecto "hilo")
+  const scale = 5.6;
+  const offsetX = 100;
+  const offsetY = 92;
+  const flipY = -1;           // el corazón matemático viene "boca abajo" respecto a pantalla
 
-    let size = 180 * Math.sqrt(
-        1 - Math.pow((y/120),2)
-    );
+  const points = [];
+  for (let i = 0; i < N; i++) {
+    const t = (i / N) * Math.PI * 2;
+    const p = heartPoint(t);
+    points.push({
+      x: offsetX + p.x * scale,
+      y: offsetY + flipY * p.y * scale
+    });
+  }
 
-    line.style.top = (135 + y) + "px";
-    line.style.width = size + "px";
-    line.style.animationDelay = ((y+100)/600) + "s";
+  const stitchGroup = document.getElementById('stitchGroup');
+  const svgns = "http://www.w3.org/2000/svg";
+  const lines = [];
 
-    heart.appendChild(line);
-}
+  for (let i = 0; i < N; i++) {
+    const a = points[i];
+    const b = points[(i + OFFSET) % N];
+    const line = document.createElementNS(svgns, 'line');
+    line.setAttribute('x1', a.x.toFixed(2));
+    line.setAttribute('y1', a.y.toFixed(2));
+    line.setAttribute('x2', b.x.toFixed(2));
+    line.setAttribute('y2', b.y.toFixed(2));
+    line.setAttribute('class', 'stitch-line');
+    stitchGroup.appendChild(line);
+    lines.push(line);
+  }
+
+  // Las líneas consecutivas SON el trazado: van apareciendo una por una
+  // hasta formar el corazón completo (sin contorno previo).
+  const startDelay = 400;
+  const stepDelay = 45;          // ms entre cada línea consecutiva
+  const lineDrawTime = 300;      // ms que tarda cada línea en trazarse
+
+  lines.forEach((line, i) => {
+    const delay = startDelay + i * stepDelay;
+    setTimeout(() => {
+      line.style.transition = `stroke-dashoffset ${lineDrawTime}ms linear, opacity 150ms linear`;
+      line.style.opacity = (0.3 + Math.random() * 0.4).toFixed(2);
+      line.style.strokeDashoffset = '0';
+    }, delay);
+  });
+
+  const totalDelay = startDelay + lines.length * stepDelay + lineDrawTime + 500;
+  setTimeout(() => {
+    document.getElementById('texto').classList.add('show');
+  }, totalDelay);
 </script>
 
 </body>
