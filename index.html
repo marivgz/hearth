@@ -2,57 +2,53 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Heart</title>
 
 <style>
 body {
     margin: 0;
     height: 100vh;
+    background: #050505;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #111;
     overflow: hidden;
 }
 
 .heart {
     position: relative;
-    width: 300px;
-    height: 270px;
-    animation: pulse 1.5s infinite;
+    width: 400px;
+    height: 350px;
+    animation: beat 1.5s infinite;
 }
 
 .line {
     position: absolute;
+    height: 3px;
+    background: #ff1744;
     left: 50%;
-    height: 2px;
-    background: #ff4d88;
     transform: translateX(-50%);
-    animation: fill 2s forwards;
+    box-shadow: 0 0 10px #ff1744;
+    animation: appear 1.8s forwards;
     opacity: 0;
-    box-shadow: 0 0 8px #ff4d88;
 }
 
-@keyframes fill {
-    from {
-        width: 0;
-        opacity: 0;
-    }
+@keyframes appear {
     to {
         opacity: 1;
     }
 }
 
-@keyframes pulse {
+@keyframes beat {
     0%,100% {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.05);
+        transform: scale(1.04);
     }
 }
 </style>
+
 </head>
 
 <body>
@@ -60,29 +56,32 @@ body {
 <div class="heart" id="heart"></div>
 
 <script>
+
 const heart = document.getElementById("heart");
 
-for(let y = -100; y <= 100; y += 6){
+for(let y = -120; y <= 120; y += 5){
 
-    let width = Math.sqrt(
-        Math.pow(16 * Math.sin(Math.acos(y/120)), 2)
+    let x = y / 120;
+
+    let width = 240 * Math.sqrt(
+        1 - x*x
     );
 
-    let x = Math.abs(y) / 2;
+    // forma de corazón
+    if(Math.abs(y) < 70){
+        width += 80;
+    }
 
     let line = document.createElement("div");
     line.className = "line";
 
-    let size = 180 * Math.sqrt(
-        1 - Math.pow((y/120),2)
-    );
-
-    line.style.top = (135 + y) + "px";
-    line.style.width = size + "px";
-    line.style.animationDelay = ((y+100)/600) + "s";
+    line.style.top = (175 + y) + "px";
+    line.style.width = width + "px";
+    line.style.animationDelay = ((y+120)/500)+"s";
 
     heart.appendChild(line);
 }
+
 </script>
 
 </body>
